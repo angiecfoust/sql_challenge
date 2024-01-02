@@ -1,22 +1,22 @@
 -- Create 6 tables for csv files, then import data
 
 CREATE TABLE employees (
-	emp_no INT PRIMARY KEY,
-	emp_title_id VARCHAR,
+	emp_no INT PRIMARY KEY NOT NULL,
+	emp_title_id VARCHAR(30),
 	birth_date DATE,
-	first_name VARCHAR,
-	last_name VARCHAR,
-	sex VARCHAR,
+	first_name VARCHAR(30) NOT NULL,
+	last_name VARCHAR(30) NOT NULL,
+	sex VARCHAR(1),
 	hire_date DATE
 	);
 	
 CREATE TABLE departments (
-	dept_no VARCHAR PRIMARY KEY,
+	dept_no VARCHAR PRIMARY KEY NOT NULL,
 	dept_name VARCHAR
 	);
 
 CREATE TABLE dept_emp (
-	emp_no INT,
+	emp_no INT NOT NULL,
 	dept_no VARCHAR,
 	FOREIGN KEY (emp_no) REFERENCES employees(emp_no),
 	FOREIGN KEY (dept_no) REFERENCES departments(dept_no)
@@ -24,7 +24,7 @@ CREATE TABLE dept_emp (
 
 
 CREATE TABLE dept_manager (
-	dept_no VARCHAR,
+	dept_no VARCHAR NOT NULL,
 	emp_no INT,
 	FOREIGN KEY (dept_no) REFERENCES departments(dept_no),
 	FOREIGN KEY (emp_no) REFERENCES employees(emp_no)
@@ -32,14 +32,14 @@ CREATE TABLE dept_manager (
 
 
 CREATE TABLE salaries (
-	emp_no INT,
+	emp_no INT NOT NULL,
 	salary INT,
 	FOREIGN KEY (emp_no) REFERENCES employees(emp_no)
 	);
 
 
 CREATE TABLE titles (
-	title_id VARCHAR PRIMARY KEY,
+	title_id VARCHAR(30) PRIMARY KEY NOT NULL,
 	title VARCHAR);
 
 ALTER TABLE employees
@@ -101,3 +101,19 @@ WHERE emp_no IN
 	WHERE dept_no IN
 		(SELECT dept_no FROM departments
 		WHERE dept_name = 'Sales'));
+
+
+-- List each employee in the Sales and Development departments, including their employee number, last name, first name, and department name.
+SELECT employees.emp_no, employees.first_name, employees.last_name,
+	departments.dept_name
+FROM employees
+INNER JOIN dept_emp on employees.emp_no = dept_emp.emp_no
+INNER JOIN departments on dept_emp.dept_no = departments.dept_no
+WHERE dept_name = 'Sales' OR dept_name = 'Development';
+
+
+-- List the frequency counts, in descending order, of all the employee last names (that is, how many employees share each last name).
+SELECT last_name, COUNT(employees.last_name) AS "Count"
+FROM employees
+GROUP BY last_name
+ORDER BY "Count" DESC;
